@@ -11,7 +11,7 @@ Analyze parametrical diagram. Prerequisites:
   applies to inequations (i.e. C<A*B)
 """
 
-project_file = '/home/cwild/devel/sq_dr_model_export/project.xml'
+project_file = ''
 
 if __name__ == "__main__":
     xmlreader = xml.XMLReader(project_file)
