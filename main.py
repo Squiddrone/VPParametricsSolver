@@ -11,17 +11,22 @@ Analyze parametrical diagram. Prerequisites:
   applies to inequations (i.e. C<A*B)
 """
 
-project_file = ''
+project_file = '/home/cwild/devel/sq_dr_model_export/project.xml'
 
 if __name__ == "__main__":
     xmlreader = xml.XMLReader(project_file)
     # Get all constraint properties in a package as list
     cp_list = xmlreader.find_constraint_properties()
     for cp in cp_list:
-        # Create mapping between properties and values
-        pv_map = xmlreader.build_pv_map_list(cp)
         # Get the constraint specification
         cs_spec = xmlreader.find_constraint_spec(cp)
+
+        # Look for autosum expression
+        search_param_list = xmlreader.parse_constraint_spec(cs_spec, 'autosum')
+
+        # Create mapping between properties and values
+        pv_map_dict = xmlreader.build_pv_map_dict(cp, search_param_list)
+
         # Feed data to analyzer module
-        calc = an.Analyzer(cp=cp, pv_map=pv_map, cs_spec=cs_spec)
+        calc = an.Analyzer(cp=cp, pv_map_dict=pv_map_dict, cs_spec=cs_spec)
         calc.analyze_all()
