@@ -1,4 +1,4 @@
-from XMLAnalyzer import analyzer as an
+from XMLAnalyzer import calculator as calc
 from XMLAnalyzer import xmlreader as xml
 
 """
@@ -15,18 +15,30 @@ project_file = '/home/cwild/devel/sq_dr_model_export/project.xml'
 
 if __name__ == "__main__":
     xmlreader = xml.XMLReader(project_file)
-    # Get all constraint properties in a package as list
-    cp_list = xmlreader.find_constraint_properties()
-    for cp in cp_list:
-        # Get the constraint specification
-        cs_spec = xmlreader.find_constraint_spec(cp)
 
-        # Look for autosum expression
-        search_param_list = xmlreader.parse_constraint_spec(cs_spec, 'autosum')
+    # Get all constraint property ids in a package as list
+    cp_ids_list = xmlreader.find_constraint_property_ids()
+    for cp_id in cp_ids_list:
 
-        # Create mapping between properties and values
-        pv_map_dict = xmlreader.build_pv_map_dict(cp, search_param_list)
+        def do_calculation(constraint_property_id):
+            constraint_property = xmlreader.find_constraint_property(constraint_property_id)
+            # Get the constraint specification
+            cs_spec = xmlreader.find_constraint_spec(constraint_property)
 
-        # Feed data to analyzer module
-        calc = an.Analyzer(cp=cp, pv_map_dict=pv_map_dict, cs_spec=cs_spec)
-        calc.analyze_all()
+            # Look for autosum expression
+            search_param_list = xmlreader.parse_constraint_spec(cs_spec, 'autosum')
+
+            # Create mapping between properties and values
+            pv_map_dict = xmlreader.build_pv_map_dict(constraint_property, search_param_list)
+
+            for dep in pv_map_dict['dependencies']:
+                dep_result = do_calculation(dep.constraint_property_id)
+                pv_map_dict['noauto']['bc'][dep.property] = xmlreader.pv_map(dep.property, str(dep_result))
+
+            # Feed data to analyzer module
+            calculator = calc.Calculator(cp=constraint_property, pv_map_dict=pv_map_dict, cs_spec=cs_spec)
+            result = calculator.calculate_all()
+
+            return result
+
+        do_calculation(cp_id)

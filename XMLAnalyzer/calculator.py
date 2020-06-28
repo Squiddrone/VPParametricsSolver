@@ -12,7 +12,7 @@ class EquationTypes(Enum):
     INEQUATION_SM_EQ = 'inequation_sm_eq'
 
 
-class Analyzer:
+class Calculator:
     def __init__(self, cp: Et.Element, pv_map_dict: dict, cs_spec: str):
         self.cp = cp
         self.pv_map_dict = pv_map_dict
@@ -42,11 +42,11 @@ class Analyzer:
 
         return expr_type, expr_sep
 
-    def analyze_all(self):
+    def calculate_all(self):
         result_prop = ""
         for key in self.pv_map_dict.keys():
             if key == 'noauto':
-                for entry in self.pv_map_dict[key]['bc']:
+                for entry in self.pv_map_dict[key]['bc'].values():
                     if entry.value != 'result':
                         exec(entry.property + "=" + entry.value)
                     elif entry.value == 'result':
@@ -77,3 +77,4 @@ class Analyzer:
             print("RHS: ", str(eval(code)))
 
         print("-------------------------------------------------------------------")
+        return result
