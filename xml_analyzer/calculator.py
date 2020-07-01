@@ -1,20 +1,19 @@
-import collections
 import parser
 import xml.etree.ElementTree as Et
 from enum import Enum
 
 
 class EquationTypes(Enum):
-    EQUATION = 'equation'
-    INEQUATION_GR_TH = 'inequation_gr_th'
-    INEQUATION_SM_TH = 'inequation_sm_th'
-    INEQUATION_GR_EQ = 'inequation_gr_eq'
-    INEQUATION_SM_EQ = 'inequation_sm_eq'
+    equation = 'equation'
+    inequation_gr_th = 'inequation_gr_th'
+    inequation_sm_th = 'inequation_sm_th'
+    inequation_gr_eq = 'inequation_gr_eq'
+    inequation_sm_eq = 'inequation_sm_eq'
 
 
 class Calculator:
     def __init__(self, cp: Et.Element, pv_map_dict: dict, cs_spec: str):
-        self.cp = cp
+        self.constraint_property = cp
         self.pv_map_dict = pv_map_dict
         self.cs_spec = cs_spec
 
@@ -22,19 +21,19 @@ class Calculator:
     def get_expression_type(expr: str) -> [EquationTypes, str]:
 
         if '>=' in expr:
-            expr_type = EquationTypes.INEQUATION_GR_EQ
+            expr_type = EquationTypes.inequation_gr_eq
             expr_sep = '>='
         elif '<=' in expr:
-            expr_type = EquationTypes.INEQUATION_SM_EQ
+            expr_type = EquationTypes.inequation_sm_eq
             expr_sep = '<='
         elif '>' in expr:
-            expr_type = EquationTypes.INEQUATION_GR_TH
+            expr_type = EquationTypes.inequation_gr_th
             expr_sep = '>'
         elif '<' in expr:
-            expr_type = EquationTypes.INEQUATION_SM_TH
+            expr_type = EquationTypes.inequation_sm_th
             expr_sep = '<'
         elif '=' in expr:
-            expr_type = EquationTypes.EQUATION
+            expr_type = EquationTypes.equation
             expr_sep = '='
         else:
             expr_type = 'undef'
@@ -52,7 +51,6 @@ class Calculator:
                     elif entry.value == 'result':
                         result_prop = entry.property
             elif key == 'autosum':
-                value = 0
                 for entry in self.pv_map_dict[key]:
                     exec(entry + "=0")
                     for val in self.pv_map_dict[key][entry]:
@@ -62,16 +60,16 @@ class Calculator:
         expr_type, expr_sep = self.get_expression_type(self.cs_spec)
         code = parser.expr(self.cs_spec.split(expr_sep)[1].strip()).compile()
 
-        if expr_type != EquationTypes.EQUATION:
+        if expr_type != EquationTypes.equation:
             result = eval(self.cs_spec)
-            print("Result for " + self.cp.get('Name') + ": " + result_prop, str(result))
+            print("Result for " + self.constraint_property.get('Name') + ": " + result_prop, str(result))
             print("Expression is of type " + expr_type.value)
             print("Expression: " + self.cs_spec)
             print("LHS: ", eval(self.cs_spec.split(expr_sep)[0]))
             print("RHS: ", str(eval(code)))
         else:
             result = eval(code)
-            print("Result for " + self.cp.get('Name') + ": ", result_prop, "=", str(result))
+            print("Result for " + self.constraint_property.get('Name') + ": ", result_prop, "=", str(result))
             print("Expression is of type " + expr_type.value)
             print("Expression: " + self.cs_spec)
             print("RHS: ", str(eval(code)))

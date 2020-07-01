@@ -1,20 +1,20 @@
-from XMLAnalyzer import calculator as calc
-from XMLAnalyzer import xmlreader as xml
+from xml_analyzer import calculator as calc
+from xml_analyzer import xmlreader as xml
 
 """
 Analyze parametrical diagram. Prerequisites:
 - Constraint must be formulated in a python conformant way
 - "to"-end of the binding connectors must point to the constraint property
-- result property must contain the string "result" as initial value 
+- result property must contain the string "result" as initial value
 - constraint property must have stereotype analyzable
 - result must be noted at the left side of the "=" (i.e. C=A*B), the same
   applies to inequations (i.e. C<A*B)
 """
 
-project_file = '/home/cwild/devel/sq_dr_model_export/project.xml'
+PROJECT_FILE = '/home/cwild/devel/sq_dr_model_export/project.xml'
 
 if __name__ == "__main__":
-    xmlreader = xml.XMLReader(project_file)
+    xmlreader = xml.XMLReader(PROJECT_FILE)
 
     # Get all constraint property ids in a package as list
     cp_ids_list = xmlreader.find_constraint_property_ids()
