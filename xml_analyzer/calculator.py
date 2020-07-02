@@ -12,10 +12,10 @@ class EquationTypes(Enum):
 
 
 class Calculator:
-    def __init__(self, cp: Et.Element, pv_map_dict: dict, cs_spec: str):
-        self.constraint_property = cp
-        self.pv_map_dict = pv_map_dict
-        self.cs_spec = cs_spec
+    def __init__(self, constraint_property: Et.Element, property_value_mapping: dict, constraint_spec: str):
+        self.constraint_property = constraint_property
+        self.property_value_mapping = property_value_mapping
+        self.constraint_spec = constraint_spec
 
     @staticmethod
     def get_expression_type(expr: str) -> [EquationTypes, str]:
@@ -43,36 +43,36 @@ class Calculator:
 
     def calculate_all(self):
         result_prop = ""
-        for key in self.pv_map_dict.keys():
+        for key in self.property_value_mapping.keys():
             if key == 'noauto':
-                for entry in self.pv_map_dict[key]['bc'].values():
+                for entry in self.property_value_mapping[key]['bc'].values():
                     if entry.value != 'result':
                         exec(entry.property + "=" + entry.value)
                     elif entry.value == 'result':
                         result_prop = entry.property
             elif key == 'autosum':
-                for entry in self.pv_map_dict[key]:
+                for entry in self.property_value_mapping[key]:
                     exec(entry + "=0")
-                    for val in self.pv_map_dict[key][entry]:
+                    for val in self.property_value_mapping[key][entry]:
                         exec(entry + "+=" + val.value)
-                    self.cs_spec = self.cs_spec.replace(key + '(' + entry + ')', entry)
+                    self.constraint_spec = self.constraint_spec.replace(key + '(' + entry + ')', entry)
 
-        expr_type, expr_sep = self.get_expression_type(self.cs_spec)
-        code = parser.expr(self.cs_spec.split(expr_sep)[1].strip()).compile()
+        expr_type, expr_sep = self.get_expression_type(self.constraint_spec)
+        code = parser.expr(self.constraint_spec.split(expr_sep)[1].strip()).compile()
 
         if expr_type != EquationTypes.equation:
-            result = eval(self.cs_spec)
+            result = eval(self.constraint_spec)
             print("Result for " + self.constraint_property.get('Name') + ": " + result_prop, str(result))
             print("Expression is of type " + expr_type.value)
-            print("Expression: " + self.cs_spec)
-            print("LHS: ", eval(self.cs_spec.split(expr_sep)[0]))
+            print("Expression: " + self.constraint_spec)
+            print("LHS: ", eval(self.constraint_spec.split(expr_sep)[0]))
             print("RHS: ", str(eval(code)))
         else:
             result = eval(code)
             print("Result for " + self.constraint_property.get('Name') + ": ", result_prop, "=", str(result))
             print("Expression is of type " + expr_type.value)
-            print("Expression: " + self.cs_spec)
+            print("Expression: " + self.constraint_spec)
             print("RHS: ", str(eval(code)))
 
         print("-------------------------------------------------------------------")
-        return result
+        return result # rückgabe unklar
