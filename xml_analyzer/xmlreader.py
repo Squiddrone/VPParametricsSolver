@@ -1,5 +1,6 @@
 import collections
 import xml.etree.ElementTree as Et
+from .prop_val_map import PropertyValueMap
 
 
 class XMLReader:
@@ -10,16 +11,16 @@ class XMLReader:
         self.pv_map = collections.namedtuple('property_value_mapping', ['property', 'value'])
 
     @staticmethod
-    def parse_constraint_spec(cspec: str, fcntype: str = "") -> list:
-        searchparam_list = list()
+    def parse_constraint_spec(constraint_spec: str, fcntype: str = "") -> list:
+        autocalc_sysml_type_name = list()
 
-        if fcntype in cspec:
-            searchparam_list.append(fcntype)
-            for occurrence in cspec.split(fcntype)[1:]:
+        if fcntype in constraint_spec:
+            autocalc_sysml_type_name.append(fcntype)
+            for occurrence in constraint_spec.split(fcntype)[1:]:
                 search_param = occurrence[occurrence.find('(') + 1:occurrence.find(')')]
                 if search_param != '':
-                    searchparam_list.append(search_param)
-        return searchparam_list
+                    autocalc_sysml_type_name.append(search_param)
+        return autocalc_sysml_type_name
 
     def find_attributes(self, val: list, method='by_type'):
         elements = None
@@ -74,14 +75,18 @@ class XMLReader:
         constraint_spec = self.root.find(query).get('Value')
         return constraint_spec
 
-    def build_pv_map_dict(self, constraint_property: Et.Element, attribute_types: list = None) -> dict:
+    def build_property_value_map(self, constraint_property: Et.Element) -> PropertyValueMap:
+
+        property_value_map = PropertyValueMap()
+
         binding_connectors = self.resolve_bindings(constraint_property)
         dependencies = self.resolve_dependencies(binding_connectors)
 
-        pv_map = collections.namedtuple('property_value_mapping', ['property', 'value'])
-        pv_map_dict = dict()
-        pv_map_dict['noauto'] = dict()
-        bc_dict = dict()
+        constraint_spec = self.find_constraint_spec(constraint_property)
+        autocalc_sysml_type_names = self.parse_constraint_spec(constraint_spec)
+
+        property_value_map.add_dependencies(dependencies)
+
         for binding_connector in binding_connectors:
             id_from = binding_connector.get('From')
             id_to = binding_connector.get('To')
@@ -90,24 +95,26 @@ class XMLReader:
             stereo = binding_connector.find('./Stereotypes/Stereotype[@Name="external"]')
             if stereo is not None:
                 val = 'dep'
-            bc_dict[prop] = pv_map(prop, val)
+            if val != 'result':
+                property_value_map.add_prop_val_mapping(prop, val)
+            elif val == 'result':
+                property_value_map.add_result_property(prop)
 
-        pv_map_dict['noauto']['bc'] = bc_dict
-
-        if attribute_types:
-            pv_map_dict[attribute_types[0]] = dict()
-            for attribute_type in attribute_types[1:]:
-                auto_list = list()
-                attributes = self.find_attributes(attribute_type)
+        if autocalc_sysml_type_names:
+            for autocalc_sysml_type_name in autocalc_sysml_type_names[1:]:
+                autocalc_values = list()
+                attributes = self.find_attributes(autocalc_sysml_type_name)
                 for attribute in attributes:
                     val = attribute.get('InitialValue')
-                    prop = attribute.get('Name')
-                    auto_list.append(pv_map(prop, val))
-                pv_map_dict[attribute_types[0]][attribute_type] = auto_list
+                    autocalc_values.append(val)
 
-        pv_map_dict['dependencies'] = dependencies
+                property_value_map.add_auto_calc_mapping(
+                    autocalc_sysml_type_name,
+                    autocalc_sysml_type_names[0],
+                    autocalc_values
+                )
 
-        return pv_map_dict
+        return property_value_map
 
     def find_constraint_property_ids(self, package: str = "") -> list:
         if package == "":

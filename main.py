@@ -1,6 +1,6 @@
 from xml_analyzer import Calculator
 from xml_analyzer import XMLReader
-import argparse # use to fill the PROJECT_FILE variale via console parameter
+import argparse
 
 """
 Analyze parametrical diagram. Prerequisites:
@@ -14,20 +14,16 @@ Analyze parametrical diagram. Prerequisites:
 
 PROJECT_FILE = ''
 
+
 def do_calculation(constraint_property_id: str, xmlreader: XMLReader) -> str:
     constraint_property = xmlreader.find_constraint_property(constraint_property_id)
-    # Get the constraint specification
-    cs_spec = xmlreader.find_constraint_spec(constraint_property)
-
-    # Look for autosum expression
-    search_param_list = xmlreader.parse_constraint_spec(cs_spec, 'autosum')
 
     # Create mapping between properties and values
-    property_value_mapping = xmlreader.build_pv_map_dict(constraint_property, search_param_list)
+    property_value_mapping = xmlreader.build_property_value_map(constraint_property)
 
-    for dep in property_value_mapping['dependencies']:
-        dep_result = do_calculation(dep.constraint_property_id)
-        property_value_mapping['noauto']['bc'][dep.property] = xmlreader.pv_map(dep.property, str(dep_result))
+    for dep in property_value_mapping.get_dependencies():
+        dep_result = do_calculation(dep.constraint_property_id, xmlreader)
+        property_value_mapping.update_variable(dep.property, str(dep_result))
 
     # Feed data to analyzer module
     calculator = Calculator(constraint_property, property_value_mapping, cs_spec)
@@ -35,13 +31,19 @@ def do_calculation(constraint_property_id: str, xmlreader: XMLReader) -> str:
 
     return result
 
+
 def main():
-    xmlreader = XMLReader(PROJECT_FILE)
+    parser = argparse.ArgumentParser(description='Necessary startup parameters')
+    parser.add_argument('--project_file_path')
+    args = parser.parse_args()
+
+    xmlreader = XMLReader(args.project_file_path)
 
     # Get all constraint property ids in a package as list
     cp_ids_list = xmlreader.find_constraint_property_ids()
     for cp_id in cp_ids_list:
-        do_calculation(cp_id)
+        do_calculation(cp_id, xmlreader)
+
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,7 @@
 import parser
 import xml.etree.ElementTree as Et
 from enum import Enum
+from .formula import Formula
 
 
 class EquationTypes(Enum):
@@ -41,38 +42,41 @@ class Calculator:
 
         return expr_type, expr_sep
 
+    def resolve_auto_calc_function(self, autocalc_fcn, type_name):
+        retval = None
+        if autocalc_fcn == 'autosum':
+            retval = self.do_autosum(type_name)
+
+        if autocalc_fcn == 'automult':
+            pass
+
+        return retval
+
+    def do_autosum(self, sysml_type_name):
+        values = list()
+        for value in self.property_value_mapping['autosum'][sysml_type_name]:
+            values.append(value.value)
+        return sum(values)
+
     def calculate_all(self):
         result_prop = ""
-        for key in self.property_value_mapping.keys():
-            if key == 'noauto':
-                for entry in self.property_value_mapping[key]['bc'].values():
-                    if entry.value != 'result':
-                        exec(entry.property + "=" + entry.value)
-                    elif entry.value == 'result':
-                        result_prop = entry.property
-            elif key == 'autosum':
-                for entry in self.property_value_mapping[key]:
-                    exec(entry + "=0")
-                    for val in self.property_value_mapping[key][entry]:
-                        exec(entry + "+=" + val.value)
-                    self.constraint_spec = self.constraint_spec.replace(key + '(' + entry + ')', entry)
 
         expr_type, expr_sep = self.get_expression_type(self.constraint_spec)
-        code = parser.expr(self.constraint_spec.split(expr_sep)[1].strip()).compile()
+        # code = parser.expr(self.constraint_spec.split(expr_sep)[1].strip()).compile()
 
-        if expr_type != EquationTypes.equation:
-            result = eval(self.constraint_spec)
-            print("Result for " + self.constraint_property.get('Name') + ": " + result_prop, str(result))
-            print("Expression is of type " + expr_type.value)
-            print("Expression: " + self.constraint_spec)
-            print("LHS: ", eval(self.constraint_spec.split(expr_sep)[0]))
-            print("RHS: ", str(eval(code)))
-        else:
-            result = eval(code)
-            print("Result for " + self.constraint_property.get('Name') + ": ", result_prop, "=", str(result))
-            print("Expression is of type " + expr_type.value)
-            print("Expression: " + self.constraint_spec)
-            print("RHS: ", str(eval(code)))
-
-        print("-------------------------------------------------------------------")
-        return result # rückgabe unklar
+        # if expr_type != EquationTypes.equation:
+        #     result = eval(self.constraint_spec)
+        #     print("Result for " + self.constraint_property.get('Name') + ": " + result_prop, str(result))
+        #     print("Expression is of type " + expr_type.value)
+        #     print("Expression: " + self.constraint_spec)
+        #     print("LHS: ", eval(self.constraint_spec.split(expr_sep)[0]))
+        #     print("RHS: ", str(eval(code)))
+        # else:
+        #     result = eval(code)
+        #     print("Result for " + self.constraint_property.get('Name') + ": ", result_prop, "=", str(result))
+        #     print("Expression is of type " + expr_type.value)
+        #     print("Expression: " + self.constraint_spec)
+        #     print("RHS: ", str(eval(code)))
+        #
+        # print("-------------------------------------------------------------------")
+        return 0 # rückgabe unklar
