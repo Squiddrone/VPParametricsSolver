@@ -1,7 +1,7 @@
-import parser
 import xml.etree.ElementTree as Et
 from enum import Enum
 from .formula import Formula
+from .data_container import DataContainer
 
 
 class EquationTypes(Enum):
@@ -13,10 +13,9 @@ class EquationTypes(Enum):
 
 
 class Calculator:
-    def __init__(self, constraint_property: Et.Element, property_value_mapping: dict, constraint_spec: str):
+    def __init__(self, constraint_property: Et.Element, property_value_mapping: DataContainer):
         self.constraint_property = constraint_property
         self.property_value_mapping = property_value_mapping
-        self.constraint_spec = constraint_spec
 
     @staticmethod
     def get_expression_type(expr: str) -> [EquationTypes, str]:
@@ -42,12 +41,12 @@ class Calculator:
 
         return expr_type, expr_sep
 
-    def resolve_auto_calc_function(self, autocalc_fcn, type_name):
+    def resolve_auto_calc_function(self, autocalc_method, type_name):
         retval = None
-        if autocalc_fcn == 'autosum':
+        if autocalc_method == 'autosum':
             retval = self.do_autosum(type_name)
 
-        if autocalc_fcn == 'automult':
+        if autocalc_method == 'automult':
             pass
 
         return retval
@@ -59,11 +58,6 @@ class Calculator:
         return sum(values)
 
     def calculate_all(self):
-        result_prop = ""
-
-        expr_type, expr_sep = self.get_expression_type(self.constraint_spec)
-        # code = parser.expr(self.constraint_spec.split(expr_sep)[1].strip()).compile()
-
         # if expr_type != EquationTypes.equation:
         #     result = eval(self.constraint_spec)
         #     print("Result for " + self.constraint_property.get('Name') + ": " + result_prop, str(result))

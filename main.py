@@ -19,14 +19,14 @@ def do_calculation(constraint_property_id: str, xmlreader: XMLReader) -> str:
     constraint_property = xmlreader.find_constraint_property(constraint_property_id)
 
     # Create mapping between properties and values
-    property_value_mapping = xmlreader.build_property_value_map(constraint_property)
+    calculation_data = xmlreader.build_data_container(constraint_property)
 
-    for dep in property_value_mapping.get_dependencies():
+    for dep in calculation_data.get_dependencies():
         dep_result = do_calculation(dep.constraint_property_id, xmlreader)
-        property_value_mapping.update_variable(dep.property, str(dep_result))
+        calculation_data.update_variable(dep.property, str(dep_result))
 
     # Feed data to analyzer module
-    calculator = Calculator(constraint_property, property_value_mapping, cs_spec)
+    calculator = Calculator(constraint_property, calculation_data)
     result = calculator.calculate_all()
 
     return result

@@ -1,13 +1,14 @@
 import collections
 
 
-class PropertyValueMap:
+class DataContainer:
     def __init__(self):
         self.mapping_element = collections.namedtuple('property_value_mapping', ['property', 'value'])
         self.mappings = dict()
         self.mappings['variables'] = dict()
         self.result_property = ''
         self.dependencies = list()
+        self.constraint_specification = ''
 
     def add_prop_val_mapping(self, prop: str, value: str):
         map_element = self.mapping_element(prop, value)
@@ -23,6 +24,9 @@ class PropertyValueMap:
 
     def add_dependencies(self, dependencies: list):
         self.dependencies = dependencies
+
+    def set_constraint_specification(self, constraint_spec: str):
+        self.constraint_specification = constraint_spec
 
     def get_variable_names(self) -> list:
         return self.mappings['variables'].keys()
