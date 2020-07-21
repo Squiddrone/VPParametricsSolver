@@ -1,30 +1,29 @@
 import collections
 import xml.etree.ElementTree as Et
 from .data_container import DataContainer
+from .definitions import AutocalcMethods
 
 
 class XMLReader:
-    autocalc_methods = ['autosum']
 
     def __init__(self, project_file):
         self._project_file = project_file
         self.tree = Et.parse(self._project_file)
         self.root = self.tree.getroot()
-        self.pv_map = collections.namedtuple('property_value_mapping', ['property', 'value'])
 
     @staticmethod
-    def parse_constraint_spec(constraint_spec: str) -> list:
+    def _parse_constraint_spec(constraint_spec: str) -> list:
         autocalc_sysml_type_name = list()
-        for method in XMLReader.autocalc_methods:
-            if method in constraint_spec:
-                autocalc_sysml_type_name.append(method)
-                for occurrence in constraint_spec.split(method)[1:]:
+        for method in AutocalcMethods:
+            if method.name in constraint_spec:
+                autocalc_sysml_type_name.append(method.name)
+                for occurrence in constraint_spec.split(method.name)[1:]:
                     search_param = occurrence[occurrence.find('(') + 1:occurrence.find(')')]
                     if search_param != '':
                         autocalc_sysml_type_name.append(search_param)
         return autocalc_sysml_type_name
 
-    def find_attributes(self, val: list, method='by_type'):
+    def _find_attributes(self, val: list, method='by_type'):
         elements = None
         if method == 'by_type':
             query = ".//Attribute/Type//*[@Name='{}']/../..".format(val)
@@ -32,7 +31,7 @@ class XMLReader:
 
         return elements
 
-    def resolve_bindings(self, constraint_property: Et.Element) -> list:
+    def _resolve_bindings(self, constraint_property: Et.Element) -> list:
         query = ".//SysMLConstraintProperty[@Id='{}']//SysMLConstraintBlock".format(constraint_property.get("Id"))
         constraint_block = self.root.find(query)
         query = ".//SysMLConstraintBlock[@Id='{}']//Attribute//SysMLBindingConnector"\
@@ -46,10 +45,10 @@ class XMLReader:
 
         return binding_connectors
 
-    def resolve_dependencies(self, binding_connector_list: list) -> list:
+    def _resolve_dependencies(self, binding_connectors: list) -> list:
         dependency = collections.namedtuple('dependency', ['property', 'constraint_property_id'])
         dependencies = list()
-        for binding_connector in binding_connector_list:
+        for binding_connector in binding_connectors:
             stereo = binding_connector.find('./Stereotypes/Stereotype[@Name="external"]')
             if stereo is not None:
                 id_from: str = binding_connector.get('From')
@@ -71,21 +70,31 @@ class XMLReader:
 
         return dependencies
 
-    def find_constraint_spec(self, constraint_property: Et.Element) -> str:
+    def _find_constraint_spec(self, constraint_property: Et.Element) -> str:
         query = ".//ConstraintElement/ConstrainedElements//*[@Idref='{}']/../..//CompositeValueSpecification"\
             .format(constraint_property.get("Id"))
         constraint_spec = self.root.find(query).get('Value')
         return constraint_spec
 
-    def build_data_container(self, constraint_property: Et.Element) -> DataContainer:
+    def _find_constraint_property(self, val: str, method='by_id'):
+        element = None
+        if method == 'by_id':
+            query = ".//SysMLConstraintProperty[@Id='{}']".format(val)
+            element = self.root.find(query)
+
+        return element
+
+    def build_data_container(self, constraint_property_id: str) -> DataContainer:
+
+        constraint_property = self._find_constraint_property(constraint_property_id)
 
         calculation_data = DataContainer()
 
-        binding_connectors = self.resolve_bindings(constraint_property)
-        dependencies = self.resolve_dependencies(binding_connectors)
+        binding_connectors = self._resolve_bindings(constraint_property)
+        dependencies = self._resolve_dependencies(binding_connectors)
 
-        constraint_spec = self.find_constraint_spec(constraint_property)
-        autocalc_sysml_type_names = self.parse_constraint_spec(constraint_spec)
+        constraint_spec = self._find_constraint_spec(constraint_property)
+        autocalc_sysml_type_names = self._parse_constraint_spec(constraint_spec)
         calculation_data.set_constraint_specification(constraint_spec)
 
         calculation_data.add_dependencies(dependencies)
@@ -97,7 +106,8 @@ class XMLReader:
             prop = self.root.find(".//*[@Id='{}']".format(id_to)).get('Name')
             stereo = binding_connector.find('./Stereotypes/Stereotype[@Name="external"]')
             if stereo is not None:
-                val = 'dep'
+                calculation_data.add_dependency_mapping(prop)
+                continue
             if val != 'result':
                 calculation_data.add_prop_val_mapping(prop, val)
             elif val == 'result':
@@ -106,10 +116,10 @@ class XMLReader:
         if autocalc_sysml_type_names:
             for autocalc_sysml_type_name in autocalc_sysml_type_names[1:]:
                 autocalc_values = list()
-                attributes = self.find_attributes(autocalc_sysml_type_name)
+                attributes = self._find_attributes(autocalc_sysml_type_name)
                 for attribute in attributes:
                     val = attribute.get('InitialValue')
-                    autocalc_values.append(val)
+                    autocalc_values.append(float(val))
 
                 calculation_data.add_auto_calc_mapping(
                     autocalc_sysml_type_name,
@@ -134,11 +144,3 @@ class XMLReader:
             constraint_property_ids.append(constraint_parameter.get('Id'))
 
         return constraint_property_ids
-
-    def find_constraint_property(self, val: str, method='by_id'):
-        element = None
-        if method == 'by_id':
-            query = ".//SysMLConstraintProperty[@Id='{}']".format(val)
-            element = self.root.find(query)
-
-        return element
