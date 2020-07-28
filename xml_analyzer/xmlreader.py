@@ -1,7 +1,7 @@
 import collections
 import xml.etree.ElementTree as Et
-from .data_container import DataContainer
-from .definitions import AutocalcMethods
+from xml_analyzer import DataContainer
+from xml_analyzer import AutocalcMethods
 
 
 class XMLReader:

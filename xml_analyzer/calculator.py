@@ -1,5 +1,5 @@
-from .data_container import DataContainer
-from .formula import Formula
+from xml_analyzer import DataContainer
+from xml_analyzer import Formula
 
 
 class Calculator:

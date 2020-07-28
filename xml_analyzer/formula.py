@@ -1,5 +1,5 @@
 from Equation import Expression
-from .definitions import EquationTypes
+from xml_analyzer import EquationTypes
 
 
 class Formula:
