@@ -2,10 +2,8 @@ import argparse
 from xml_analyzer import Calculator
 from xml_analyzer import XMLReader
 
-PROJECT_FILE = ''
 
-
-def do_calculation(constraint_property_id: str, xmlreader: XMLReader) -> [str, float]:
+def evaluate_constraint_property(constraint_property_id: str, xmlreader: XMLReader) -> float:
     """
     Analyze parametrical diagram. Prerequisites:
     - "to"-end of the binding connectors must point to the constraint property
@@ -18,7 +16,7 @@ def do_calculation(constraint_property_id: str, xmlreader: XMLReader) -> [str, f
     calculation_data = xmlreader.build_data_container(constraint_property_id)
 
     for dep in calculation_data.get_dependencies():
-        dep_result = do_calculation(dep.constraint_property_id, xmlreader)
+        dep_result = evaluate_constraint_property(dep.constraint_property_id, xmlreader)
         calculation_data.update_variable(dep.property, dep_result)
 
     # Feed data to analyzer module
@@ -39,7 +37,7 @@ def main():
     # Get all constraint property ids in a package as list
     cp_ids_list = xmlreader.find_constraint_property_ids()
     for cp_id in cp_ids_list:
-        do_calculation(cp_id, xmlreader)
+        evaluate_constraint_property(cp_id, xmlreader)
 
 
 if __name__ == "__main__":
