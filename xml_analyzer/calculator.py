@@ -11,6 +11,7 @@ class Calculator:
     def _resolve_auto_calc_functions(autocalc_method, values):
         if autocalc_method == 'autosum':
             return round(sum(values), 3)
+        return None
 
     def calculate(self) -> float:
         for autocalc_method in self.data.mappings['autocalc']:

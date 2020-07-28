@@ -3,7 +3,7 @@ from .definitions import EquationTypes
 
 
 class Formula:
-    def __init__(self, constraint_spec: str = "", variables: list = []):
+    def __init__(self, constraint_spec: str = "", variables: list = None):
         self.expression = self._make_expression(constraint_spec, variables)
 
     def _make_expression(self, expression: str, variables: list):
@@ -35,4 +35,3 @@ class Formula:
             expr_sep = 'undef'
 
         return expr_type, expr_sep
-

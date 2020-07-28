@@ -5,4 +5,3 @@ from .definitions import AutocalcMethods, EquationTypes
 from .calculator import Calculator
 
 __all__ = ['Calculator', 'XMLReader', 'Formula', 'AutocalcMethods', 'EquationTypes', 'DataContainer']
-

@@ -1,20 +1,19 @@
+import argparse
 from xml_analyzer import Calculator
 from xml_analyzer import XMLReader
-import argparse
-
-"""
-Analyze parametrical diagram. Prerequisites:
-- "to"-end of the binding connectors must point to the constraint property
-- result property must contain the string "result" as initial value
-- constraint property must have stereotype analyzable
-- result must be noted at the left side of the "=" (i.e. C=A*B), the same
-  applies to inequations (i.e. C<A*B)
-"""
 
 PROJECT_FILE = ''
 
 
 def do_calculation(constraint_property_id: str, xmlreader: XMLReader) -> [str, float]:
+    """
+    Analyze parametrical diagram. Prerequisites:
+    - "to"-end of the binding connectors must point to the constraint property
+    - result property must contain the string "result" as initial value
+    - constraint property must have stereotype analyzable
+    - result must be noted at the left side of the "=" (i.e. C=A*B), the same
+      applies to inequations (i.e. C<A*B)
+    """
     # Create mapping between properties and values
     calculation_data = xmlreader.build_data_container(constraint_property_id)
 
