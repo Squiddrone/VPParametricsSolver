@@ -1,4 +1,7 @@
 from enum import Enum
+from collections import namedtuple
+
+MappingElement = namedtuple('property_value_mapping', ['property', 'value'])
 
 
 class AutocalcMethods(Enum):

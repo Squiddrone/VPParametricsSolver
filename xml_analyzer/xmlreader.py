@@ -95,9 +95,9 @@ class XMLReader:
 
         constraint_spec = self._find_constraint_spec(constraint_property)
         autocalc_sysml_type_names = self._parse_constraint_spec(constraint_spec)
-        calculation_data.set_constraint_specification(constraint_spec)
+        calculation_data.constraint_specification = constraint_spec
 
-        calculation_data.add_dependencies(dependencies)
+        calculation_data.dependencies = dependencies
 
         for binding_connector in binding_connectors:
             id_from = binding_connector.get('From')
@@ -111,7 +111,7 @@ class XMLReader:
             if val != 'result':
                 calculation_data.add_prop_val_mapping(prop, val)
             elif val == 'result':
-                calculation_data.add_result_property(prop)
+                calculation_data.result_property = prop
 
         if autocalc_sysml_type_names:
             for autocalc_sysml_type_name in autocalc_sysml_type_names[1:]:
