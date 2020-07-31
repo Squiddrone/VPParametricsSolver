@@ -8,30 +8,30 @@ class Formula(Expression):
         super().__init__(self._expression, variables)
 
     def _make_expression(self, expression: str):
-        expr_type, expr_sep = self._get_expression_type(expression)
-        if expr_type == EquationTypes.equation:
-            expression = expression.split(expr_sep)[1]
+        equation_type, math_symbol = self._get_equation_type(expression)
+        if equation_type == EquationTypes.equation:
+            expression = expression.split(math_symbol)[1]
         return expression
 
     @staticmethod
-    def _get_expression_type(expr: str) -> [EquationTypes, str]:
-        if '>=' in expr:
-            expr_type = EquationTypes.inequation_gr_eq
-            expr_sep = '>='
-        elif '<=' in expr:
-            expr_type = EquationTypes.inequation_sm_eq
-            expr_sep = '<='
-        elif '>' in expr:
-            expr_type = EquationTypes.inequation_gr_th
-            expr_sep = '>'
-        elif '<' in expr:
-            expr_type = EquationTypes.inequation_sm_th
-            expr_sep = '<'
-        elif '=' in expr:
-            expr_type = EquationTypes.equation
-            expr_sep = '='
+    def _get_equation_type(math_expression: str) -> [EquationTypes, str]:
+        if '>=' in math_expression:
+            equation_type = EquationTypes.inequation_gr_eq
+            math_symbol = '>='
+        elif '<=' in math_expression:
+            equation_type = EquationTypes.inequation_sm_eq
+            math_symbol = '<='
+        elif '>' in math_expression:
+            equation_type = EquationTypes.inequation_gr_th
+            math_symbol = '>'
+        elif '<' in math_expression:
+            equation_type = EquationTypes.inequation_sm_th
+            math_symbol = '<'
+        elif '=' in math_expression:
+            equation_type = EquationTypes.equation
+            math_symbol = '='
         else:
-            expr_type = 'undef'
-            expr_sep = 'undef'
+            equation_type = 'undef'
+            math_symbol = 'undef'
 
-        return expr_type, expr_sep
+        return equation_type, math_symbol
