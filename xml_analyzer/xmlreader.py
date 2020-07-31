@@ -66,7 +66,8 @@ class XMLReader:
                         ref_constr_prop_id = self._root.find(
                             './/SysMLConstraintProperty//*[@Idref="{}"]/../..'.format(ref_constr_block_id)
                         ).get('Id')
-                        property_name = self._root.find('.//*[@Id="{}"]'.format(binding_connector.get('To'))).get('Name')
+                        property_name = self._root.find('.//*[@Id="{}"]'.
+                                                        format(binding_connector.get('To'))).get('Name')
                         dependencies.append(dependency(property_name, ref_constr_prop_id))
 
         return dependencies

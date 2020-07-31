@@ -1,5 +1,5 @@
-from .definitions import MappingElement
 from enum import Enum
+from .definitions import MappingElement
 
 
 class DataContainerFields(Enum):

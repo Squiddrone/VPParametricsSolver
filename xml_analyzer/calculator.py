@@ -20,7 +20,7 @@ class Calculator:
                 auto_value = self._resolve_auto_calc_functions(autocalc_method, autocalc_entry.value)
                 self.data.add_prop_val_mapping(sysml_type_name, str(auto_value))
 
-        result = self.formula.expression(*list(self.data.mappings[DataContainerFields.variables].values()))
+        result = self.formula(*list(self.data.mappings[DataContainerFields.variables].values()))
         # if expr_type != EquationTypes.equation:
         #     result = eval(self.constraint_spec)
         #     print("Result for " + self.constraint_property.get('Name') + ": " + result_prop, str(result))

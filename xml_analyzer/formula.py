@@ -2,16 +2,16 @@ from Equation import Expression
 from .definitions import EquationTypes
 
 
-class Formula:
+class Formula(Expression):
     def __init__(self, constraint_spec: str = "", variables: list = None):
-        self.expression = self._make_expression(constraint_spec, variables)
+        self._expression = self._make_expression(constraint_spec)
+        super().__init__(self._expression, variables)
 
-    def _make_expression(self, expression: str, variables: list):
+    def _make_expression(self, expression: str):
         expr_type, expr_sep = self._get_expression_type(expression)
         if expr_type == EquationTypes.equation:
             expression = expression.split(expr_sep)[1]
-
-        return Expression(expression, variables)
+        return expression
 
     @staticmethod
     def _get_expression_type(expr: str) -> [EquationTypes, str]:
