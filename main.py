@@ -19,7 +19,7 @@ def evaluate_constraint_property(constraint_property_id: str, xmlreader: XMLRead
         dep_result = evaluate_constraint_property(dep.constraint_property_id, xmlreader)
         calculation_data.update_variable(dep.property, dep_result)
 
-    # Feed data to analyzer module
+    # Feed _data to analyzer module
     calculator = Calculator(calculation_data)
     result = calculator.calculate()
     print(calculation_data.constraint_specification, calculation_data.result_property, ':', result)
