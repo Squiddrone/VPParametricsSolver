@@ -21,8 +21,12 @@ class DataContainer:
         self._mappings[DataContainerFields.variables][prop] = float(value)
 
     @property
-    def mappings(self) -> dict:
-        return self._mappings
+    def prop_val_mappings(self) -> dict:
+        return self._mappings[DataContainerFields.variables]
+
+    @property
+    def autocalc_mappings(self) -> dict:
+        return self._mappings[DataContainerFields.autocalc]
 
     @property
     def result_property(self) -> str:
