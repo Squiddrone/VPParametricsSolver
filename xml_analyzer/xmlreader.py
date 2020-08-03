@@ -51,7 +51,7 @@ class XMLReader:
         dependencies = list()
         for binding_connector in binding_connectors:
             stereo = binding_connector.find('./Stereotypes/Stereotype[@Name="external"]')
-            if stereo:
+            if stereo is not None:
                 id_from: str = binding_connector.get('From')
                 ref_attribute = self._root.find('.//*[@Id="{}"]'.format(id_from))
                 ref_attribute_connectors = ref_attribute.iterfind('.//SysMLBindingConnector')
@@ -93,7 +93,7 @@ class XMLReader:
             val = self._root.find(".//*[@Id='{}']".format(id_from)).get('InitialValue')
             prop = self._root.find(".//*[@Id='{}']".format(id_to)).get('Name')
             stereo = binding_connector.find('./Stereotypes/Stereotype[@Name="external"]')
-            if stereo:
+            if stereo is not None:
                 calculation_data.add_dependency_mapping(prop)
                 continue
             if val != 'result':
