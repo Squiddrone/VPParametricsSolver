@@ -18,7 +18,8 @@ class Calculator:
             for autocalc_entry in self._data.autocalc_mappings[autocalc_method]:
                 sysml_type_name = autocalc_entry.property
                 auto_value = self._resolve_auto_calc_functions(autocalc_method, autocalc_entry.value)
-                self._data.add_prop_val_mapping(sysml_type_name, str(auto_value))
+                if auto_value:
+                    self._data.add_prop_val_mapping(sysml_type_name, str(auto_value))
 
         result = self._formula(*list(self._data.prop_val_mappings.values()))
         # if expr_type != EquationTypes.equation:
