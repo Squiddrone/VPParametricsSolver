@@ -1,10 +1,11 @@
-from enum import Enum
+from dataclasses import dataclass
 from .definitions import MappingElement
 
 
-class DataContainerFields(Enum):
-    variables = 'variables'
-    autocalc = 'autocalc'
+@dataclass
+class DataContainerFields:
+    variables: str = 'variables'
+    autocalc: str = 'autocalc'
 
 
 class DataContainer:
