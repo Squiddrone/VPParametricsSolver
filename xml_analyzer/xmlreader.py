@@ -7,7 +7,7 @@ from .definitions import AutocalcMethods
 
 class XMLReader:
 
-    def __init__(self, project_file):
+    def __init__(self, project_file: str):
         self._project_file = project_file
         self._tree = Et.parse(self._project_file)
         self._root = self._tree.getroot()
