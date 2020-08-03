@@ -35,8 +35,8 @@ def main():
     xmlreader = XMLReader(args.project_file_path)
 
     # Get all constraint property ids in a package as list
-    cp_ids_list = xmlreader.find_constraint_property_ids()
-    for cp_id in cp_ids_list:
+    cp_ids = xmlreader.find_constraint_property_ids()
+    for cp_id in cp_ids:
         evaluate_constraint_property(cp_id, xmlreader)
 
 
