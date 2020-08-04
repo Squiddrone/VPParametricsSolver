@@ -1,5 +1,5 @@
 import argparse
-from xml_analyzer import Calculator
+from calculator import Calculator
 from xml_analyzer import XMLReader
 
 

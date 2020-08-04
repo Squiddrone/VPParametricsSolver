@@ -1,8 +1,8 @@
 import collections
 from typing import List
 import xml.etree.ElementTree as Et
+from definitions import AutocalcMethods
 from .data_container import DataContainer
-from .definitions import AutocalcMethods
 
 
 class XMLReader:
