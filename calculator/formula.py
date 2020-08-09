@@ -1,5 +1,5 @@
 from Equation import Expression
-from .definitions import EquationTypes
+from definitions import EquationTypes
 
 
 class Formula(Expression):

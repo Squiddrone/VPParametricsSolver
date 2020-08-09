@@ -1,4 +1,4 @@
-from .calculator import Calculator
 from .xmlreader import XMLReader
+from .data_container import DataContainer
 
-__all__ = ['Calculator', 'XMLReader']
+__all__ = ['XMLReader', 'DataContainer']

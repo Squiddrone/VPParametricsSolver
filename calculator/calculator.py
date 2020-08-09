@@ -1,4 +1,4 @@
-from .data_container import DataContainer
+from xml_analyzer import DataContainer
 from .formula import Formula
 
 
